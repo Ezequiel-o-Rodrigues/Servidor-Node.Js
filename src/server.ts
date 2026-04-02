@@ -24,7 +24,11 @@ app.use(requestLogger);
 app.use(metricsMiddleware());
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Desabilitado para permitir inline scripts no frontend
+    contentSecurityPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+    originAgentCluster: false,
   })
 );
 app.use(corsConfig);
