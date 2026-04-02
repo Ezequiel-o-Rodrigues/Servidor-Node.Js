@@ -20,13 +20,6 @@
         <p>Faça login para acessar o sistema</p>
       </div>
 
-      <!-- Tabs -->
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-password">Senha</button>
-        <button class="auth-tab" id="tab-ssh">Chave SSH</button>
-      </div>
-
-      <!-- Password Login -->
       <form id="login-form" class="auth-form">
         <div class="form-group">
           <label for="username">Usuário</label>
@@ -42,39 +35,6 @@
           <span class="btn-loading" hidden>Entrando...</span>
         </button>
       </form>
-
-      <!-- SSH Login -->
-      <div id="ssh-login" hidden>
-        <!-- Step 1: Request challenge -->
-        <div id="ssh-step1">
-          <form id="ssh-challenge-form" class="auth-form">
-            <div class="form-group">
-              <label for="ssh-username">Usuário</label>
-              <input type="text" id="ssh-username" required placeholder="Seu nome de usuário">
-            </div>
-            <div id="ssh-error" class="error-message" hidden></div>
-            <button type="submit" class="btn btn-primary btn-full">Gerar Challenge</button>
-          </form>
-        </div>
-
-        <!-- Step 2: Sign challenge -->
-        <div id="ssh-step2" hidden>
-          <div class="form-group">
-            <label>Execute no terminal:</label>
-            <div style="background:#0f172a;color:#22c55e;padding:12px;border-radius:var(--radius);font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:8px" id="ssh-command"></div>
-            <button class="btn btn-ghost btn-sm" id="btn-copy-cmd">Copiar comando</button>
-          </div>
-          <form id="ssh-verify-form" class="auth-form" style="margin-top:16px">
-            <div class="form-group">
-              <label for="ssh-signature">Cole a assinatura aqui:</label>
-              <textarea id="ssh-signature" required rows="4" placeholder="Cole o resultado do comando acima..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-family:monospace;font-size:12px;resize:vertical"></textarea>
-            </div>
-            <div id="ssh-verify-error" class="error-message" hidden></div>
-            <button type="submit" class="btn btn-primary btn-full">Verificar e Entrar</button>
-            <button type="button" class="btn btn-ghost btn-full" id="btn-ssh-back" style="margin-top:8px">Voltar</button>
-          </form>
-        </div>
-      </div>
     </div>
   </div>
 
