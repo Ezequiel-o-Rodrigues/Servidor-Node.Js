@@ -92,6 +92,33 @@ app.get("/app", (_req, res) => {
   res.sendFile(path.join(__dirname, "frontend", "layouts", "app.html"));
 });
 
+// Auth via token na URL (usado pelo ssh-login.sh)
+app.get("/auth-token", (req, res) => {
+  const token = req.query.token as string;
+  if (!token) {
+    return res.redirect("/login");
+  }
+  // Página que seta o token no localStorage e redireciona
+  res.send(`<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Autenticando...</title></head>
+<body><p>Autenticando...</p><script>
+var token = ${JSON.stringify(token)};
+try {
+  var parts = token.split('.');
+  var payload = JSON.parse(atob(parts[1]));
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify({
+    id: payload.userId,
+    username: payload.username,
+    displayName: payload.username,
+    role: payload.role
+  }));
+  document.cookie = 'token=' + token + ';path=/;max-age=86400;SameSite=Lax';
+  window.location.href = '/app';
+} catch(e) { window.location.href = '/login'; }
+</script></body></html>`);
+});
+
 // Redirecionar raiz para login
 app.get("/", (_req, res) => {
   res.redirect("/login");
