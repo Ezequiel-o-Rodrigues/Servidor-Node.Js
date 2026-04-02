@@ -10,7 +10,7 @@ RUN npx tsc
 # Production stage
 FROM node:22-alpine
 WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN apk add --no-cache openssh-keygen && addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
