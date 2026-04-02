@@ -24,7 +24,7 @@ async function runMigrations() {
 
   const migrationsDir = path.join(__dirname, "migrations");
   const files = fs.readdirSync(migrationsDir)
-    .filter((f) => f.endsWith(".ts") || f.endsWith(".js"))
+    .filter((f) => (f.endsWith(".ts") || f.endsWith(".js")) && !f.endsWith(".d.ts") && !f.endsWith(".map"))
     .sort();
 
   for (const file of files) {
@@ -36,7 +36,12 @@ async function runMigrations() {
 
     logger.info(`Executando migration: ${name}`);
     const migration = require(path.join(migrationsDir, file));
-    await migration.up(query);
+    const upFn = migration.up || migration.default?.up || migration.default;
+    if (typeof upFn !== "function") {
+      logger.error(`Migration ${name} não exporta função 'up'. Keys: ${Object.keys(migration)}`);
+      continue;
+    }
+    await upFn(query);
     await query("INSERT INTO _migrations (name) VALUES ($1)", [name]);
     logger.info(`Migration ${name} executada com sucesso`);
   }
