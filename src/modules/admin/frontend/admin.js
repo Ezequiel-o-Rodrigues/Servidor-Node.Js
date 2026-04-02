@@ -206,6 +206,76 @@
     }
   }
 
+  // ========== SSH KEYS ==========
+  var sshModalOverlay = document.getElementById('ssh-modal-overlay');
+  var sshKeyForm = document.getElementById('ssh-key-form');
+
+  document.getElementById('btn-new-ssh-key').addEventListener('click', function () {
+    sshKeyForm.reset();
+    sshModalOverlay.hidden = false;
+  });
+  document.getElementById('btn-ssh-modal-close').addEventListener('click', function () {
+    sshModalOverlay.hidden = true;
+  });
+  document.getElementById('btn-ssh-modal-cancel').addEventListener('click', function () {
+    sshModalOverlay.hidden = true;
+  });
+
+  async function loadSSHKeys() {
+    try {
+      var keys = await API.get('/api/auth/ssh/keys');
+      var tbody = document.getElementById('ssh-keys-tbody');
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:20px">Nenhuma chave SSH registrada. Adicione uma para fazer login sem senha.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      keys.forEach(function (k) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><strong>' + k.name + '</strong></td>' +
+          '<td><span class="badge badge-default">' + k.key_type + '</span></td>' +
+          '<td><code style="font-size:11px">' + k.fingerprint + '</code></td>' +
+          '<td>' + (k.last_used ? new Date(k.last_used).toLocaleString('pt-BR') : 'Nunca') + '</td>' +
+          '<td>' + new Date(k.created_at).toLocaleString('pt-BR') + '</td>' +
+          '<td><button class="btn btn-ghost btn-xs text-danger btn-delete-key" data-id="' + k.id + '" data-name="' + k.name + '">Remover</button></td>';
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.btn-delete-key').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          deleteSSHKey(parseInt(this.getAttribute('data-id')), this.getAttribute('data-name'));
+        });
+      });
+    } catch (err) {
+      console.error('Erro ao carregar chaves SSH:', err);
+    }
+  }
+
+  sshKeyForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    try {
+      await API.post('/api/auth/ssh/keys', {
+        name: document.getElementById('ssh-key-name').value,
+        publicKey: document.getElementById('ssh-key-value').value,
+      });
+      sshModalOverlay.hidden = true;
+      await loadSSHKeys();
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    }
+  });
+
+  async function deleteSSHKey(id, name) {
+    if (!confirm('Remover a chave "' + name + '"?')) return;
+    try {
+      await API.delete('/api/auth/ssh/keys/' + id);
+      await loadSSHKeys();
+    } catch (err) {
+      alert('Erro: ' + err.message);
+    }
+  }
+
   // ========== LOAD ==========
-  Promise.all([loadStats(), loadUsers(), loadModules()]);
+  Promise.all([loadStats(), loadUsers(), loadModules(), loadSSHKeys()]);
 })();

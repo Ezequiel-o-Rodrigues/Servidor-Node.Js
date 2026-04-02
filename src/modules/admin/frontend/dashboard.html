@@ -73,6 +73,29 @@
           </div>
         </section>
 
+        <!-- SSH Keys Section -->
+        <section class="section" id="section-ssh-keys">
+          <div class="section-header">
+            <h2>Minhas Chaves SSH</h2>
+            <button class="btn btn-primary btn-sm" id="btn-new-ssh-key">+ Nova Chave</button>
+          </div>
+          <div class="table-container">
+            <table class="table" id="ssh-keys-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Tipo</th>
+                  <th>Fingerprint</th>
+                  <th>Último Uso</th>
+                  <th>Criada em</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="ssh-keys-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="section" id="section-modules">
           <div class="section-header">
             <h2>Módulos</h2>
@@ -81,6 +104,31 @@
         </section>
       </div>
     </main>
+  </div>
+
+  <!-- SSH Key Modal -->
+  <div class="modal-overlay" id="ssh-modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Adicionar Chave SSH</h3>
+        <button class="btn btn-ghost" id="btn-ssh-modal-close">&times;</button>
+      </div>
+      <form id="ssh-key-form" class="modal-body">
+        <div class="form-group">
+          <label for="ssh-key-name">Nome da chave</label>
+          <input type="text" id="ssh-key-name" required placeholder="Ex: Meu notebook, Servidor prod">
+        </div>
+        <div class="form-group">
+          <label for="ssh-key-value">Chave pública</label>
+          <textarea id="ssh-key-value" required rows="4" placeholder="ssh-ed25519 AAAA... ou ssh-rsa AAAA..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-family:monospace;font-size:12px;resize:vertical"></textarea>
+          <small style="color:var(--text-secondary)">Cole o conteúdo do arquivo ~/.ssh/id_ed25519.pub ou ~/.ssh/id_rsa.pub</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="btn-ssh-modal-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <div class="modal-overlay" id="modal-overlay" hidden>
