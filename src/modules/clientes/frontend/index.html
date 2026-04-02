@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes — Sistema</title>
+  <link rel="stylesheet" href="/shared/styles.css">
+</head>
+<body>
+  <div id="app-shell">
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Sistema</h2>
+        <span class="sidebar-user" id="user-display"></span>
+      </div>
+      <ul class="sidebar-menu" id="sidebar-menu"></ul>
+      <div class="sidebar-footer">
+        <button class="btn btn-ghost btn-full" id="btn-logout">Sair</button>
+      </div>
+    </nav>
+    <main class="main-content">
+      <header class="topbar">
+        <button class="btn btn-ghost sidebar-toggle" id="btn-sidebar">&#9776;</button>
+        <h1>Clientes</h1>
+      </header>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">&#128101;</div><div class="stat-info"><span class="stat-value" id="stat-total">-</span><span class="stat-label">Total</span></div></div>
+          <div class="stat-card"><div class="stat-icon">&#9989;</div><div class="stat-info"><span class="stat-value" id="stat-ativos">-</span><span class="stat-label">Ativos</span></div></div>
+          <div class="stat-card"><div class="stat-icon">&#128230;</div><div class="stat-info"><span class="stat-value" id="stat-servicos">-</span><span class="stat-label">Serviços</span></div></div>
+        </div>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Clientes</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="busca" placeholder="Buscar..." style="padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px">
+              <button class="btn btn-primary btn-sm" id="btn-novo">+ Novo Cliente</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Cidade/UF</th><th>Ativo</th><th>Ações</th></tr></thead>
+              <tbody id="clientes-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header"><h3 id="modal-title">Novo Cliente</h3><button class="btn btn-ghost" id="btn-modal-close">&times;</button></div>
+      <form id="cliente-form" class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group" style="grid-column:1/-1"><label>Nome *</label><input type="text" id="f-nome" required></div>
+          <div class="form-group"><label>Razão Social</label><input type="text" id="f-razao"></div>
+          <div class="form-group"><label>CNPJ</label><input type="text" id="f-cnpj"></div>
+          <div class="form-group"><label>CPF</label><input type="text" id="f-cpf"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="f-email"></div>
+          <div class="form-group"><label>Telefone</label><input type="text" id="f-telefone"></div>
+          <div class="form-group"><label>WhatsApp</label><input type="text" id="f-whatsapp"></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Endereço</label><input type="text" id="f-endereco"></div>
+          <div class="form-group"><label>Cidade</label><input type="text" id="f-cidade"></div>
+          <div class="form-group"><label>Estado</label><input type="text" id="f-estado" maxlength="2"></div>
+          <div class="form-group"><label>CEP</label><input type="text" id="f-cep"></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Observações</label><textarea id="f-obs" rows="2" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-ghost" id="btn-modal-cancel">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/shared/api.js"></script>
+  <script src="/shared/app.js"></script>
+  <script src="/m/clientes/clientes.js"></script>
+</body>
+</html>

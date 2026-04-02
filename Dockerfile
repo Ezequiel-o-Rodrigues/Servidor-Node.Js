@@ -18,6 +18,8 @@ COPY --from=builder /app/dist ./dist
 COPY src/frontend ./dist/frontend
 COPY src/modules/auth/frontend ./dist/modules/auth/frontend
 COPY src/modules/admin/frontend ./dist/modules/admin/frontend
+COPY src/modules/clientes/frontend ./dist/modules/clientes/frontend
+COPY src/modules/servicos/frontend ./dist/modules/servicos/frontend
 USER appuser
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
