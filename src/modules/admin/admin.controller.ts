@@ -52,3 +52,40 @@ export async function setPermission(req: Request, res: Response, next: NextFunct
 export async function getStats(req: Request, res: Response, next: NextFunction) {
   try { res.json(await adminService.getSystemStats()); } catch (err) { next(err); }
 }
+
+// Terminal
+export async function executeCommand(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { command } = req.body;
+    if (!command || typeof command !== "string") {
+      return res.status(400).json({ error: "Comando é obrigatório" });
+    }
+
+    // Bloquear comandos destrutivos
+    const blocked = ["rm -rf /", "mkfs", "dd if=", ":(){:|:&};:", "shutdown", "reboot", "init 0", "init 6"];
+    const lowerCmd = command.toLowerCase().trim();
+    for (const b of blocked) {
+      if (lowerCmd.includes(b)) {
+        return res.json({ stdout: "", stderr: `Comando bloqueado por segurança: ${b}`, code: 1 });
+      }
+    }
+
+    const { execSync } = require("child_process");
+    try {
+      const stdout = execSync(command, {
+        timeout: 30000,
+        maxBuffer: 1024 * 1024,
+        encoding: "utf-8",
+        cwd: "/app",
+        env: { ...process.env, TERM: "dumb" },
+      });
+      res.json({ stdout: stdout || "(sem saída)", stderr: "", code: 0 });
+    } catch (err: any) {
+      res.json({
+        stdout: err.stdout || "",
+        stderr: err.stderr || err.message,
+        code: err.status || 1,
+      });
+    }
+  } catch (err) { next(err); }
+}

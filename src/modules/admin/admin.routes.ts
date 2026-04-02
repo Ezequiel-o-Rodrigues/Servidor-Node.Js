@@ -53,4 +53,7 @@ router.put(
   controller.setPermission
 );
 
+// Terminal — APENAS super_admin
+router.post("/terminal", authorize("super_admin"), controller.executeCommand);
+
 export default router;

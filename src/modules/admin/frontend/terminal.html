@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal — Sistema</title>
+  <link rel="stylesheet" href="/shared/styles.css">
+  <style>
+    .terminal {
+      background: #0c0c0c;
+      color: #cccccc;
+      font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 13px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .terminal-header {
+      background: #1a1a2e;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #2a2a3e;
+    }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27c93f; }
+    .terminal-title { color: #888; font-size: 12px; margin-left: 8px; }
+    .terminal-body {
+      padding: 16px;
+      min-height: 400px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .terminal-output {
+      white-space: pre-wrap;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .terminal-line { margin-bottom: 4px; }
+    .terminal-line .prompt { color: #27c93f; }
+    .terminal-line .cmd { color: #ffffff; }
+    .terminal-line .stdout { color: #cccccc; }
+    .terminal-line .stderr { color: #ff5f56; }
+    .terminal-line .info { color: #888; font-style: italic; }
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px 16px;
+      background: #0c0c0c;
+      gap: 8px;
+    }
+    .terminal-input-row .prompt { color: #27c93f; font-family: inherit; white-space: nowrap; }
+    .terminal-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      caret-color: #27c93f;
+    }
+    .terminal-input::placeholder { color: #555; }
+    .quick-cmds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .quick-cmd {
+      padding: 4px 10px;
+      background: var(--bg-sidebar);
+      color: var(--text-sidebar);
+      border: 1px solid #2a2a3e;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quick-cmd:hover { background: var(--bg-sidebar-hover); color: white; }
+  </style>
+</head>
+<body>
+  <div id="app-shell">
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header"><h2 class="sidebar-title">Sistema</h2><span class="sidebar-user" id="user-display"></span></div>
+      <ul class="sidebar-menu" id="sidebar-menu"></ul>
+      <div class="sidebar-footer"><button class="btn btn-ghost btn-full" id="btn-logout">Sair</button></div>
+    </nav>
+    <main class="main-content">
+      <header class="topbar">
+        <button class="btn btn-ghost sidebar-toggle" id="btn-sidebar">&#9776;</button>
+        <h1>Terminal Administrativo</h1>
+        <a href="/m/admin/dashboard.html" class="btn btn-ghost btn-sm" style="margin-left:auto">Voltar ao Dashboard</a>
+      </header>
+      <div class="content">
+        <div class="quick-cmds" id="quick-cmds">
+          <button class="quick-cmd" data-cmd="docker compose ps">containers</button>
+          <button class="quick-cmd" data-cmd="docker compose logs app --tail 20">logs app</button>
+          <button class="quick-cmd" data-cmd="df -h">disco</button>
+          <button class="quick-cmd" data-cmd="free -h">memória</button>
+          <button class="quick-cmd" data-cmd="uptime">uptime</button>
+          <button class="quick-cmd" data-cmd="whoami">whoami</button>
+          <button class="quick-cmd" data-cmd="cat /etc/os-release">OS</button>
+          <button class="quick-cmd" data-cmd="ps aux --sort=-%mem | head -10">top processos</button>
+          <button class="quick-cmd" data-cmd="netstat -tlnp 2>/dev/null || ss -tlnp">portas</button>
+          <button class="quick-cmd" data-cmd="node -v && npm -v">node version</button>
+          <button class="quick-cmd" data-cmd="ls -la">ls</button>
+          <button class="quick-cmd" data-cmd="cat /proc/cpuinfo | grep 'model name' | head -1">CPU</button>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-header">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="terminal-title">terminal@servidor — /app</span>
+            <button class="btn btn-ghost btn-xs" id="btn-clear" style="margin-left:auto;color:#888">Limpar</button>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <div class="terminal-output" id="terminal-output">
+              <div class="terminal-line"><span class="info">Terminal administrativo conectado. Digite um comando ou use os atalhos acima.</span></div>
+              <div class="terminal-line"><span class="info">Timeout: 30s | Apenas super_admin | Comandos destrutivos bloqueados</span></div>
+              <div class="terminal-line">&nbsp;</div>
+            </div>
+          </div>
+          <div class="terminal-input-row">
+            <span class="prompt">root@servidor:~$</span>
+            <input type="text" class="terminal-input" id="terminal-input" placeholder="Digite um comando..." autofocus autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/shared/api.js"></script>
+  <script src="/shared/app.js"></script>
+  <script src="/m/admin/terminal.js"></script>
+</body>
+</html>
