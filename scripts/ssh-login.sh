@@ -77,7 +77,9 @@ echo "      Challenge recebido: ${CHALLENGE:0:16}..."
 
 # Step 2: Assinar o challenge
 echo "[2/3] Assinando challenge com chave SSH..."
-SIGNATURE=$(echo -n "$CHALLENGE" | ssh-keygen -Y sign -f "$KEY" -n challenge 2>/dev/null | base64 -w0)
+SSH_SIG_RAW=$(echo -n "$CHALLENGE" | ssh-keygen -Y sign -f "$KEY" -n challenge 2>/dev/null)
+# Extrair só o base64 interno (sem headers BEGIN/END)
+SIGNATURE=$(echo "$SSH_SIG_RAW" | grep -v "^-----" | tr -d '\n')
 
 if [ -z "$SIGNATURE" ]; then
   echo "ERRO: Falha ao assinar o challenge"

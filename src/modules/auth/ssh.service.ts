@@ -227,16 +227,13 @@ export async function verifyChallenge(username: string, challenge: string, signa
 // - string H(message)  (onde H = sha512)
 
 function decodeSSHSignature(input: string): Buffer {
-  // Decodificar o base64 (pode ser o blob inteiro ou ter headers)
   let b64 = input.trim();
 
   // Remover headers se existirem
-  if (b64.includes("BEGIN SSH SIGNATURE")) {
-    b64 = b64
-      .replace(/-----BEGIN SSH SIGNATURE-----/g, "")
-      .replace(/-----END SSH SIGNATURE-----/g, "")
-      .replace(/\s+/g, "");
-  }
+  b64 = b64
+    .replace(/-----BEGIN SSH SIGNATURE-----/g, "")
+    .replace(/-----END SSH SIGNATURE-----/g, "")
+    .replace(/[\s\r\n]+/g, "");
 
   const blob = Buffer.from(b64, "base64");
 
