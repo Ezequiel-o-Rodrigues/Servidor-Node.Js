@@ -35,51 +35,13 @@
 
         <button type="submit" class="btn btn-primary btn-full" id="btn-login">
           <span class="btn-text">Entrar</span>
-          <span class="btn-loading" hidden>
-            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="0 12 12;360 12 12" dur="0.8s" repeatCount="indefinite"/></circle></svg>
-            Entrando...
-          </span>
+          <span class="btn-loading" hidden>Entrando...</span>
         </button>
       </form>
     </div>
   </div>
 
   <script src="/shared/api.js"></script>
-  <script>
-    const form = document.getElementById('login-form');
-    const errorEl = document.getElementById('error-message');
-    const btnLogin = document.getElementById('btn-login');
-
-    // Se já está logado, redirecionar
-    API.get('/api/auth/profile').then(() => {
-      window.location.href = '/app';
-    }).catch(() => {});
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorEl.hidden = true;
-      btnLogin.querySelector('.btn-text').hidden = true;
-      btnLogin.querySelector('.btn-loading').hidden = false;
-      btnLogin.disabled = true;
-
-      try {
-        const data = await API.post('/api/auth/login', {
-          username: form.username.value,
-          password: form.password.value,
-        });
-
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.token);
-        window.location.href = '/app';
-      } catch (err) {
-        errorEl.textContent = err.message || 'Erro ao fazer login';
-        errorEl.hidden = false;
-      } finally {
-        btnLogin.querySelector('.btn-text').hidden = false;
-        btnLogin.querySelector('.btn-loading').hidden = true;
-        btnLogin.disabled = false;
-      }
-    });
-  </script>
+  <script src="/m/auth/login.js"></script>
 </body>
 </html>

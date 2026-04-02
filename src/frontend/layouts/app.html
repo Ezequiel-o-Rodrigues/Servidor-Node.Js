@@ -15,13 +15,13 @@
       </div>
       <ul class="sidebar-menu" id="sidebar-menu"></ul>
       <div class="sidebar-footer">
-        <button class="btn btn-ghost btn-full" onclick="doLogout()">Sair</button>
+        <button class="btn btn-ghost btn-full" id="btn-logout">Sair</button>
       </div>
     </nav>
 
     <main class="main-content">
       <header class="topbar">
-        <button class="btn btn-ghost sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <button class="btn btn-ghost sidebar-toggle" id="btn-sidebar">&#9776;</button>
         <h1>Dashboard</h1>
       </header>
 
@@ -48,27 +48,6 @@
 
   <script src="/shared/api.js"></script>
   <script src="/shared/app.js"></script>
-  <script>
-    initApp('home');
-
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    document.getElementById('welcome-name').textContent = user.displayName || user.username || 'Usuário';
-
-    // Carregar módulos disponíveis
-    API.get('/api/auth/modules').then(modules => {
-      const grid = document.getElementById('my-modules');
-      grid.innerHTML = modules
-        .filter(m => m.slug !== 'auth')
-        .map(m => `
-          <a href="/m/${m.slug}/" class="module-card" style="text-decoration:none;color:inherit">
-            <div class="module-header">
-              <span class="module-icon">${getMenuIcon(m.icon)}</span>
-              <h3>${m.name}</h3>
-            </div>
-            <p class="module-desc">${m.description || ''}</p>
-          </a>
-        `).join('');
-    }).catch(err => console.error(err));
-  </script>
+  <script src="/shared/home.js"></script>
 </body>
 </html>

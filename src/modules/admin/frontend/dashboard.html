@@ -15,18 +15,17 @@
       </div>
       <ul class="sidebar-menu" id="sidebar-menu"></ul>
       <div class="sidebar-footer">
-        <button class="btn btn-ghost btn-full" onclick="doLogout()">Sair</button>
+        <button class="btn btn-ghost btn-full" id="btn-logout">Sair</button>
       </div>
     </nav>
 
     <main class="main-content">
       <header class="topbar">
-        <button class="btn btn-ghost sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <button class="btn btn-ghost sidebar-toggle" id="btn-sidebar">&#9776;</button>
         <h1 id="page-title">Dashboard</h1>
       </header>
 
       <div class="content" id="content">
-        <!-- Stats Cards -->
         <div class="stats-grid" id="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">&#128100;</div>
@@ -51,11 +50,10 @@
           </div>
         </div>
 
-        <!-- Users Section -->
         <section class="section" id="section-users">
           <div class="section-header">
             <h2>Usuários</h2>
-            <button class="btn btn-primary btn-sm" onclick="showCreateUserModal()">+ Novo Usuário</button>
+            <button class="btn btn-primary btn-sm" id="btn-new-user">+ Novo Usuário</button>
           </div>
           <div class="table-container">
             <table class="table" id="users-table">
@@ -75,7 +73,6 @@
           </div>
         </section>
 
-        <!-- Modules Section -->
         <section class="section" id="section-modules">
           <div class="section-header">
             <h2>Módulos</h2>
@@ -86,12 +83,11 @@
     </main>
   </div>
 
-  <!-- Create User Modal -->
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal">
       <div class="modal-header">
         <h3 id="modal-title">Novo Usuário</h3>
-        <button class="btn btn-ghost" onclick="closeModal()">&times;</button>
+        <button class="btn btn-ghost" id="btn-modal-close">&times;</button>
       </div>
       <form id="user-form" class="modal-body">
         <input type="hidden" id="edit-user-id">
@@ -120,7 +116,7 @@
           </select>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+          <button type="button" class="btn btn-ghost" id="btn-modal-cancel">Cancelar</button>
           <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
       </form>
@@ -129,166 +125,6 @@
 
   <script src="/shared/api.js"></script>
   <script src="/shared/app.js"></script>
-  <script>
-    // ========== INIT ==========
-    initApp('admin');
-    loadDashboard();
-
-    async function loadDashboard() {
-      await Promise.all([loadStats(), loadUsers(), loadModules()]);
-    }
-
-    // ========== STATS ==========
-    async function loadStats() {
-      try {
-        const stats = await API.get('/api/admin/stats');
-        document.getElementById('stat-users').textContent = stats.users.total;
-        document.getElementById('stat-modules').textContent = stats.modules.enabled;
-        document.getElementById('stat-sessions').textContent = stats.activeSessions;
-      } catch (err) {
-        console.error('Erro ao carregar stats:', err);
-      }
-    }
-
-    // ========== USERS ==========
-    async function loadUsers() {
-      try {
-        const users = await API.get('/api/admin/users');
-        const tbody = document.getElementById('users-tbody');
-        tbody.innerHTML = users.map(u => `
-          <tr>
-            <td>${u.id}</td>
-            <td><strong>${u.username}</strong></td>
-            <td>${u.display_name || '-'}</td>
-            <td><span class="badge badge-${u.role === 'super_admin' ? 'danger' : u.role === 'admin' ? 'warning' : 'default'}">${u.role}</span></td>
-            <td><span class="badge badge-${u.active ? 'success' : 'default'}">${u.active ? 'Sim' : 'Não'}</span></td>
-            <td>${u.last_login ? new Date(u.last_login).toLocaleString('pt-BR') : 'Nunca'}</td>
-            <td>
-              <button class="btn btn-ghost btn-xs" onclick="editUser(${u.id})">Editar</button>
-              <button class="btn btn-ghost btn-xs text-danger" onclick="confirmDeleteUser(${u.id}, '${u.username}')">Excluir</button>
-            </td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        console.error('Erro ao carregar usuários:', err);
-      }
-    }
-
-    function showCreateUserModal() {
-      document.getElementById('modal-title').textContent = 'Novo Usuário';
-      document.getElementById('user-form').reset();
-      document.getElementById('edit-user-id').value = '';
-      document.getElementById('form-password').required = true;
-      document.getElementById('form-username').disabled = false;
-      document.getElementById('modal-overlay').hidden = false;
-    }
-
-    async function editUser(id) {
-      try {
-        const user = await API.get(`/api/admin/users/${id}`);
-        document.getElementById('modal-title').textContent = 'Editar Usuário';
-        document.getElementById('edit-user-id').value = id;
-        document.getElementById('form-username').value = user.username;
-        document.getElementById('form-username').disabled = true;
-        document.getElementById('form-email').value = user.email || '';
-        document.getElementById('form-displayname').value = user.display_name || '';
-        document.getElementById('form-role').value = user.role;
-        document.getElementById('form-password').value = '';
-        document.getElementById('form-password').required = false;
-        document.getElementById('modal-overlay').hidden = false;
-      } catch (err) {
-        alert('Erro ao carregar usuário: ' + err.message);
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('modal-overlay').hidden = true;
-    }
-
-    document.getElementById('user-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('edit-user-id').value;
-      const data = {
-        email: document.getElementById('form-email').value || undefined,
-        displayName: document.getElementById('form-displayname').value || undefined,
-        role: document.getElementById('form-role').value,
-      };
-
-      const password = document.getElementById('form-password').value;
-      if (password) data.password = password;
-
-      try {
-        if (id) {
-          await API.put(`/api/admin/users/${id}`, data);
-        } else {
-          data.username = document.getElementById('form-username').value;
-          await API.post('/api/admin/users', data);
-        }
-        closeModal();
-        await loadUsers();
-        await loadStats();
-      } catch (err) {
-        alert('Erro: ' + err.message);
-      }
-    });
-
-    async function confirmDeleteUser(id, username) {
-      if (!confirm(`Tem certeza que deseja excluir o usuário "${username}"?`)) return;
-      try {
-        await API.delete(`/api/admin/users/${id}`);
-        await loadUsers();
-        await loadStats();
-      } catch (err) {
-        alert('Erro ao excluir: ' + err.message);
-      }
-    }
-
-    // ========== MODULES ==========
-    async function loadModules() {
-      try {
-        const modules = await API.get('/api/admin/modules');
-        const grid = document.getElementById('modules-grid');
-        grid.innerHTML = modules.map(m => `
-          <div class="module-card ${m.enabled ? '' : 'module-disabled'}">
-            <div class="module-header">
-              <span class="module-icon">${getIcon(m.icon)}</span>
-              <h3>${m.name}</h3>
-            </div>
-            <p class="module-desc">${m.description || ''}</p>
-            <div class="module-footer">
-              <span class="badge badge-${m.enabled ? 'success' : 'default'}">${m.enabled ? 'Ativo' : 'Inativo'}</span>
-              <span class="text-muted">v${m.version}</span>
-              <label class="toggle">
-                <input type="checkbox" ${m.enabled ? 'checked' : ''} onchange="toggleModule('${m.slug}', this.checked)">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        `).join('');
-      } catch (err) {
-        console.error('Erro ao carregar módulos:', err);
-      }
-    }
-
-    async function toggleModule(slug, enabled) {
-      try {
-        await API.patch(`/api/admin/modules/${slug}`, { enabled });
-        await loadModules();
-        await loadStats();
-      } catch (err) {
-        alert('Erro: ' + err.message);
-      }
-    }
-
-    function getIcon(name) {
-      const icons = {
-        shield: '&#128737;',
-        settings: '&#9881;',
-        box: '&#128230;',
-        users: '&#128101;',
-      };
-      return icons[name] || icons.box;
-    }
-  </script>
+  <script src="/m/admin/admin.js"></script>
 </body>
 </html>
