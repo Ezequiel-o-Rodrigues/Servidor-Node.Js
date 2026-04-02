@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Sistema</title>
+  <link rel="stylesheet" href="/shared/styles.css">
+</head>
+<body>
+  <div id="app-shell">
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Sistema</h2>
+        <span class="sidebar-user" id="user-display"></span>
+      </div>
+      <ul class="sidebar-menu" id="sidebar-menu"></ul>
+      <div class="sidebar-footer">
+        <button class="btn btn-ghost btn-full" onclick="doLogout()">Sair</button>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="btn btn-ghost sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1>Dashboard</h1>
+      </header>
+
+      <div class="content">
+        <div class="stats-grid" id="welcome-grid">
+          <div class="stat-card">
+            <div class="stat-icon">&#128075;</div>
+            <div class="stat-info">
+              <span class="stat-value" id="welcome-name">-</span>
+              <span class="stat-label">Bem-vindo ao sistema</span>
+            </div>
+          </div>
+        </div>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Seus Módulos</h2>
+          </div>
+          <div class="modules-grid" id="my-modules"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="/shared/api.js"></script>
+  <script src="/shared/app.js"></script>
+  <script>
+    initApp('home');
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    document.getElementById('welcome-name').textContent = user.displayName || user.username || 'Usuário';
+
+    // Carregar módulos disponíveis
+    API.get('/api/auth/modules').then(modules => {
+      const grid = document.getElementById('my-modules');
+      grid.innerHTML = modules
+        .filter(m => m.slug !== 'auth')
+        .map(m => `
+          <a href="/m/${m.slug}/" class="module-card" style="text-decoration:none;color:inherit">
+            <div class="module-header">
+              <span class="module-icon">${getMenuIcon(m.icon)}</span>
+              <h3>${m.name}</h3>
+            </div>
+            <p class="module-desc">${m.description || ''}</p>
+          </a>
+        `).join('');
+    }).catch(err => console.error(err));
+  </script>
+</body>
+</html>
